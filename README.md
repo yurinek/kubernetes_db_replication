@@ -7,7 +7,7 @@ It will create pods for one master and one slave database and respectively creat
 
 Copy the contents of this repo to your Kubernetes host
 
-## How to run if using deployment
+## How to run if using Deployment
 ```hcl 
 # create directory for persistent volume
 sudo mkdir /mnt/data
