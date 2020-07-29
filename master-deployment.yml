@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: master-deployment
+    labels: 
+      app: db_master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db_master
+  template:
+    metadata:
+      labels:
+        app: db_master
+    spec:
+      volumes:
+        - name: master-volume
+          persistentVolumeClaim:
+            claimName: master-volume-pvc-hostpath
+        - name: queries-volume
+          configMap:
+            # Provide the name of the ConfigMap you want to mount.
+            name: queries
+            # An array of keys from the ConfigMap to create as files
+            items:
+            - key: "query1.sql"
+              # path is here only file name which is stored under /db-queries
+              path: "query1.sql"
+      containers:
+        - name: postgres-master
+          image: yurinek/postgres_master:12_k8s
+          ports:
+            - containerPort: 5439
+          volumeMounts:
+            - mountPath: "/data_alternate"
+              name: master-volume
+            - name: queries-volume
+              mountPath: "/db-queries"
+              readOnly: true
+          env:
+          - name: RUNTIME_ENV_PG_VERSION_PULL
+            value: "12"
+          - name: RUNTIME_ENV_PG_CLUSTER_PATH
+            value: "/data_alternate"
+          - name: RUNTIME_ENV_PG_PORT
+            value: "5439"
+          - name: RUNTIME_ENV_PG_DB
+            value: "obscure_db"
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-auth
+                key: password

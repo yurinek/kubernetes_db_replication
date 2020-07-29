@@ -1,0 +1,15 @@
+# only needed for deployment, not for statefulset
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: master-volume-pvc-hostpath
+spec:
+  storageClassName: mycustomclass
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+
+# because slave is created from master we only need pvc for master db

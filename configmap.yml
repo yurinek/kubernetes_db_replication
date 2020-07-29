@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: queries
+data:
+  # file-like keys
+  query1.sql: |
+    SELECT *
+    FROM test;

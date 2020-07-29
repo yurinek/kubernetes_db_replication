@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+    name: master-statefulset
+    labels: 
+      app: db_master
+spec:
+  # serviceName is the name of the service that governs this StatefulSet. This service must exist before the StatefulSet, and is responsible for the network identity of the set. Pods get DNS/hostnames that follow the pattern: pod-specific-string.serviceName.default.svc.cluster.local where "pod-specific-string" is managed by the StatefulSet controller. serviceName is mandatory.
+  serviceName: "master-cluster-dns-name"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db_master
+  template:
+    metadata:
+      labels:
+        app: db_master
+    spec:
+      volumes:
+        - name: queries-volume
+          configMap:
+            # Provide the name of the ConfigMap you want to mount.
+            name: queries
+            # An array of keys from the ConfigMap to create as files
+            items:
+            - key: "query1.sql"
+              # path is here only file name which is stored under /db-queries
+              path: "query1.sql"
+      containers:
+        - name: postgres-master
+          image: yurinek/postgres_master:12_k8s
+          ports:
+            - containerPort: 5439
+          volumeMounts:
+            - mountPath: "/data_alternate"
+              name: volume-pv-hostpath-vct
+            - name: queries-volume
+              mountPath: "/db-queries"
+              readOnly: true
+          env:
+          - name: RUNTIME_ENV_PG_VERSION_PULL
+            value: "12"
+          - name: RUNTIME_ENV_PG_CLUSTER_PATH
+            value: "/data_alternate"
+          - name: RUNTIME_ENV_PG_PORT
+            value: "5439"
+          - name: RUNTIME_ENV_PG_DB
+            value: "obscure_db"
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-auth
+                key: password
+  # hostpath volumes should not be used in production and are used here for a proof-of-concept solution
+  # unlike in deployment in statefulset also basic volumes (not pv, pvc) dont get deleted if pod get deleted
+  volumeClaimTemplates:
+  - metadata:
+      name: volume-pv-hostpath-vct
+    spec:
+      storageClassName: mycustomclass
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 5Gi
+      selector:
+        matchLabels:
+          type: local

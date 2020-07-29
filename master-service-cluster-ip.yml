@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: master-cluster-dns-name
+spec:
+    # ClusterIP is default service type, so type specification is optional
+    type: ClusterIP
+    ports:
+      # Other pods within the cluster can communicate with this pod on the specified port
+      # NodePort is the default setting if the port field is not specified
+      - port: 5439
+        # container port
+        targetPort: 5439
+    selector:
+        app: db_master
+
+
+# should be possible (connected to pod):
+    #  kubectl exec -it slave-deployment-5d84b7679b-fdgwq -- apt update
+    #  kubectl exec -it slave-deployment-5d84b7679b-fdgwq -- apt install telnet
+    #  kubectl exec -it slave-deployment-5d84b7679b-fdgwq -- telnet master-cluster-dns-name 5439
