@@ -16,6 +16,20 @@ spec:
       labels:
         app: db_master
     spec:
+      # make sure master and slave pods are created on different nodes
+      # if a node already has a pod with defined label, then next pod wont be scheduled on same node
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              # pod label key
+              - key: app
+                operator: In
+                values:
+                # pod label value (can be eather db_master or db_slave, but needs to be same in master-yaml and slave-yaml)
+                - db_master
+            topologyKey: "kubernetes.io/hostname"
       volumes:
         - name: queries-volume
           configMap:
@@ -52,7 +66,7 @@ spec:
                 name: db-auth
                 key: password
   # hostpath volumes should not be used in production and are used here for a proof-of-concept solution
-  # unlike in deployment in statefulset also basic volumes (not pv, pvc) dont get deleted if pod get deleted
+  # unlike in deployment in statefulset also basic volumes (not pv, pvc) dont get deleted if pod gets deleted
   volumeClaimTemplates:
   - metadata:
       name: volume-pv-hostpath-vct

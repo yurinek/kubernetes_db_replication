@@ -11,10 +11,10 @@ spec:
         # container port
         targetPort: 5439
         # host port (routes to container port) needs to be between 30000 and 32767
-        # nodePort: 31515    <-- if not set, accidental free port will be chosen (see kubectl get svc master-node-port) ***
+        # nodePort: 31515    <-- if not set, accidental free port will be chosen
     selector:
         app: db_master
 
 # should be possible from node:
-    # telnet ip_of_node 31324 ***
+    # telnet ip_of_node 31324
     # telnet ip_of_pod  5439

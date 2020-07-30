@@ -9,7 +9,7 @@ Copy the contents of this repo to your Kubernetes host
 
 ## How to run if using Deployment
 ```hcl 
-# create directory for persistent volume
+# create directory for persistent volume on each node
 sudo mkdir /mnt/data
 
 # create persistent volume
@@ -38,7 +38,7 @@ kubectl apply -f slave-deployment.yml
 
 ## How to run if using StatefulSet
 ```hcl 
-# create directory for persistent volume
+# create directory for persistent volume on each node
 sudo mkdir /mnt/data
 
 # create persistent volume

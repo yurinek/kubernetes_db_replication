@@ -14,6 +14,20 @@ spec:
       labels:
         app: db_slave
     spec:
+      # make sure master and slave pods are created on different nodes
+      # if a node already has a pod with defined label, then next pod wont be scheduled on same node
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              # pod label key
+              - key: app
+                operator: In
+                values:
+                # pod label value (can be eather db_master or db_slave, but needs to be same in master-yaml and slave-yaml)
+                - db_master
+            topologyKey: "kubernetes.io/hostname"
       volumes:
         - name: queries-volume
           configMap:
