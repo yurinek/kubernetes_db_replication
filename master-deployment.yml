@@ -46,6 +46,13 @@ spec:
           image: yurinek/postgres_master:12_k8s
           ports:
             - containerPort: 5439
+          resources:
+            requests:
+              memory: "300Mi"
+              cpu: "0.5"
+            limits:
+              memory: "400Mi"
+              cpu: "1"
           volumeMounts:
             - mountPath: "/data_alternate"
               name: master-volume

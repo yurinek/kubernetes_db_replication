@@ -43,6 +43,13 @@ spec:
           image: yurinek/postgres_slave:12_k8s
           ports:
             - containerPort: 5439
+          resources:
+            requests:
+              memory: "300Mi"
+              cpu: "0.5"
+            limits:
+              memory: "400Mi"
+              cpu: "1"
           volumeMounts:
             - name: queries-volume
               mountPath: "/db-queries"
